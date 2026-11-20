@@ -188,11 +188,13 @@ class ByteStreamer:
 
                 except asyncio.TimeoutError:
                     tries += 1
+                    LOGGER.warning(f"[STREAM] GetFile timeout (chunk {seq_idx}, client {c_idx}, try {tries})")
                     client_failures[c_idx] = client_failures.get(c_idx, 0) + 1
                     await asyncio.sleep(min(0.5 * (2 ** (tries - 1)), 10.0))
 
                 except Exception as e:
                     err_str = str(e)
+                    LOGGER.warning(f"[STREAM] GetFile failed (chunk {seq_idx}, client {c_idx}, try {tries + 1}): {type(e).__name__}: {err_str[:300]}")
 
                     if "FILE_REFERENCE" in err_str or "file_reference" in err_str.lower():
                         await c_refresh()
